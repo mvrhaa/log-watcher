@@ -1,0 +1,1 @@
+"""Format the text report."""

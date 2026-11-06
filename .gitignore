@@ -1,0 +1,13 @@
+# virtual environment
+.venv/
+
+# python cache
+__pycache__/
+*.pyc
+
+# tool caches
+.pytest_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store
