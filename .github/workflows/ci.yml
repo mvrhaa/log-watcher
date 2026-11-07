@@ -22,3 +22,19 @@ jobs:
 
       - name: Test
         run: pytest
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build image
+        run: docker build -t log-watcher .
+
+      - name: Smoke test on samples
+        run: |
+          status=0
+          docker run --rm -v "$PWD/samples:/logs" log-watcher --access /logs/access.log --auth /logs/auth.log || status=$?
+          echo "exit code: $status"
+          [ "$status" -eq 0 ] || [ "$status" -eq 1 ]
