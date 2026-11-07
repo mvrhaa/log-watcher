@@ -1,4 +1,4 @@
-from logwatcher.parsers import parse_nginx_line
+from logwatcher.parsers import parse_auth_line, parse_nginx_line
 
 
 def test_valid_line():
@@ -37,3 +37,27 @@ def test_malformed_line_returns_none():
 
 def test_empty_line_returns_none():
     assert parse_nginx_line("") is None
+
+
+def test_failed_password_for_existing_user():
+    line = "Nov  6 10:20:01 web01 sshd[2150]: Failed password for root from 203.0.113.45 port 52344 ssh2\n"
+
+    assert parse_auth_line(line) == {"ip": "203.0.113.45", "user": "root", "event": "failed"}
+
+
+def test_failed_password_for_invalid_user():
+    line = "Nov  6 10:20:24 web01 sshd[2155]: Failed password for invalid user bob from 203.0.113.45 port 52366 ssh2"
+
+    assert parse_auth_line(line) == {"ip": "203.0.113.45", "user": "bob", "event": "failed"}
+
+
+def test_accepted_password():
+    line = "Nov  6 10:40:02 web01 sshd[2245]: Accepted password for ops from 10.0.0.21 port 50410 ssh2"
+
+    assert parse_auth_line(line) == {"ip": "10.0.0.21", "user": "ops", "event": "accepted"}
+
+
+def test_non_matching_auth_line_returns_none():
+    line = "Nov  6 10:20:15 web01 sshd[2153]: Invalid user admin from 203.0.113.45 port 52360"
+
+    assert parse_auth_line(line) is None
