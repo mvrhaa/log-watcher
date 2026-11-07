@@ -1,0 +1,20 @@
+Nov  6 09:58:12 web01 sshd[1987]: Accepted password for deploy from 10.0.0.20 port 50112 ssh2
+Nov  6 09:58:12 web01 sshd[1987]: pam_unix(sshd:session): session opened for user deploy(uid=1001) by (uid=0)
+Nov  6 09:59:40 web01 sudo:   deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/systemctl reload nginx
+Nov  6 10:01:03 web01 sshd[2044]: Failed password for root from 198.51.100.150 port 41022 ssh2
+Nov  6 10:01:07 web01 sshd[2044]: Failed password for root from 198.51.100.150 port 41022 ssh2
+Nov  6 10:01:15 web01 sshd[2046]: Failed password for invalid user ubuntu from 198.51.100.150 port 41030 ssh2
+Nov  6 10:01:19 web01 sshd[2046]: Failed password for invalid user ubuntu from 198.51.100.150 port 41030 ssh2
+Nov  6 10:05:00 web01 CRON[2101]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+Nov  6 10:20:01 web01 sshd[2150]: Failed password for root from 203.0.113.45 port 52344 ssh2
+Nov  6 10:20:04 web01 sshd[2150]: Failed password for root from 203.0.113.45 port 52344 ssh2
+Nov  6 10:20:08 web01 sshd[2150]: Failed password for root from 203.0.113.45 port 52344 ssh2
+Nov  6 10:20:09 web01 sshd[2150]: Disconnected from authenticating user root 203.0.113.45 port 52344 [preauth]
+Nov  6 10:20:15 web01 sshd[2153]: Invalid user admin from 203.0.113.45 port 52360
+Nov  6 10:20:17 web01 sshd[2153]: Failed password for invalid user admin from 203.0.113.45 port 52360 ssh2
+Nov  6 10:20:24 web01 sshd[2155]: Failed password for invalid user bob from 203.0.113.45 port 52366 ssh2
+Nov  6 10:20:31 web01 sshd[2157]: Failed password for invalid user test from 203.0.113.45 port 52372 ssh2
+Nov  6 10:20:38 web01 sshd[2159]: Failed password for invalid user oracle from 203.0.113.45 port 52380 ssh2
+Nov  6 10:31:44 web01 sshd[2210]: Failed password for deploy from 10.0.0.20 port 50340 ssh2
+Nov  6 10:31:50 web01 sshd[2210]: Accepted password for deploy from 10.0.0.20 port 50340 ssh2
+Nov  6 10:40:02 web01 sshd[2245]: Accepted password for ops from 10.0.0.21 port 50410 ssh2
