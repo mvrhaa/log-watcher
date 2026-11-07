@@ -4,6 +4,11 @@ import argparse
 import os
 import sys
 
+from logwatcher.config import load_config
+from logwatcher.parsers import parse_auth_line, parse_nginx_line, read_log
+from logwatcher.report import format_section, format_warnings
+from logwatcher.stats import count_status, failed_logins_by_ip, suspicious_ips, top_ips
+
 
 def build_parser():
     parser = argparse.ArgumentParser(
@@ -26,7 +31,35 @@ def main(argv=None):
         if path and not os.path.isfile(path):
             parser.error(f"log file not found: {path}")
 
-    return 0
+    try:
+        config = load_config(args.config)
+    except FileNotFoundError as error:
+        parser.error(str(error))
+
+    sections = []
+    skipped = []
+    warnings = []
+
+    if args.access:
+        records, skipped_lines = read_log(args.access, parse_nginx_line)
+        skipped.append((args.access, skipped_lines))
+        errors = [(code, count_status(records, code)) for code in (404, 500)]
+        sections.append(format_section("Top IPs", top_ips(records, config["top_n"])))
+        sections.append(format_section("HTTP errors", errors))
+
+    if args.auth:
+        records, skipped_lines = read_log(args.auth, parse_auth_line)
+        skipped.append((args.auth, skipped_lines))
+        failed = failed_logins_by_ip(records)
+        threshold = config["failed_login_threshold"]
+        warnings = suspicious_ips(failed, threshold)
+        sections.append(format_section("Failed logins", failed.most_common()))
+        sections.append(format_warnings(warnings, threshold))
+
+    sections.append(format_section("Skipped lines", skipped))
+    print("\n\n".join(sections))
+
+    return 1 if warnings else 0
 
 
 if __name__ == "__main__":
