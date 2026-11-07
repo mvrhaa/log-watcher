@@ -1,4 +1,8 @@
-from logwatcher.parsers import parse_auth_line, parse_nginx_line
+from pathlib import Path
+
+from logwatcher.parsers import parse_auth_line, parse_nginx_line, read_log
+
+SAMPLES = Path(__file__).parent.parent / "samples"
 
 
 def test_valid_line():
@@ -61,3 +65,27 @@ def test_non_matching_auth_line_returns_none():
     line = "Nov  6 10:20:15 web01 sshd[2153]: Invalid user admin from 203.0.113.45 port 52360"
 
     assert parse_auth_line(line) is None
+
+
+def test_read_log_counts_skipped_nginx_lines():
+    records, skipped = read_log(SAMPLES / "access.log", parse_nginx_line)
+
+    assert len(records) == 28
+    assert skipped == 2
+
+
+def test_read_log_counts_skipped_auth_lines():
+    records, skipped = read_log(SAMPLES / "auth.log", parse_auth_line)
+
+    assert len(records) == 15
+    assert skipped == 5
+
+
+def test_read_log_survives_invalid_bytes(tmp_path):
+    log = tmp_path / "access.log"
+    log.write_bytes(b"\xff\xfe broken bytes\n")
+
+    records, skipped = read_log(log, parse_nginx_line)
+
+    assert records == []
+    assert skipped == 1
