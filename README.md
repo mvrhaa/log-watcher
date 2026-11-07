@@ -1,0 +1,60 @@
+# Log Watcher
+
+![CI](https://github.com/mvrhaa/log-watcher/actions/workflows/ci.yml/badge.svg)
+
+A small Python CLI that reads nginx access logs and SSH auth logs and reports:
+
+- the most active IPs
+- how many 404 and 500 responses there were
+- failed SSH logins per IP
+- a `WARNING` line for every IP whose failed logins reach the threshold in `config.yaml`
+
+Malformed lines never crash the tool: they are skipped and counted. The exit code is `1` when a warning was printed, so the tool can fail a CI job or trigger an alert from cron.
+
+## Run locally
+
+Needs Python 3.12.
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+python -m logwatcher --access samples/access.log --auth samples/auth.log
+```
+
+Both logs are optional, but at least one is required. `--config` defaults to `config.yaml` in the current directory.
+
+## Run with Docker
+
+```bash
+docker build -t log-watcher .
+docker run --rm -v "$PWD/samples:/logs" log-watcher --access /logs/access.log --auth /logs/auth.log
+```
+
+The image is based on `python:3.12-slim` and runs as a non-root user. Logs are passed in through a volume.
+
+## Configuration
+
+```yaml
+failed_login_threshold: 5
+top_n: 5
+```
+
+A missing key falls back to the default shown above.
+
+## Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | report printed, no warnings |
+| 1 | report printed with at least one warning |
+| 2 | bad arguments, or a log or config file was not found |
+
+## Tests
+
+```bash
+ruff check .
+pytest
+```
+
+GitHub Actions runs on every push and pull request. The `test` job runs ruff and pytest. The `docker` job builds the image and runs it on `samples/` as a smoke test. Exit code `1` is expected there because the samples contain a warning.
