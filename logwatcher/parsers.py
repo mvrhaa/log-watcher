@@ -36,3 +36,16 @@ def parse_auth_line(line):
         "user": match["user"],
         "event": match["event"].lower(),
     }
+
+
+def read_log(path, parse_line):
+    records = []
+    skipped = 0
+    with open(path, encoding="utf-8", errors="replace") as file:
+        for line in file:
+            record = parse_line(line)
+            if record is None:
+                skipped += 1
+            else:
+                records.append(record)
+    return records, skipped
