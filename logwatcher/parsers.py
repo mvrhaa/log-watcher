@@ -9,6 +9,11 @@ NGINX_LINE = re.compile(
     r'"[^"]*" "[^"]*"'
 )
 
+AUTH_LINE = re.compile(
+    r'(?P<event>Failed|Accepted) password for (?:invalid user )?'
+    r'(?P<user>\S+) from (?P<ip>\S+) port \d+ ssh2$'
+)
+
 
 def parse_nginx_line(line):
     match = NGINX_LINE.fullmatch(line.strip())
@@ -19,3 +24,15 @@ def parse_nginx_line(line):
     record["status"] = int(record["status"])
     record["size"] = 0 if record["size"] == "-" else int(record["size"])
     return record
+
+
+def parse_auth_line(line):
+    match = AUTH_LINE.search(line.strip())
+    if match is None:
+        return None
+
+    return {
+        "ip": match["ip"],
+        "user": match["user"],
+        "event": match["event"].lower(),
+    }
