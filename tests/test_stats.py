@@ -1,7 +1,8 @@
+from collections import Counter
 from pathlib import Path
 
 from logwatcher.parsers import parse_auth_line, parse_nginx_line, read_log
-from logwatcher.stats import count_status, failed_logins_by_ip, top_ips
+from logwatcher.stats import count_status, failed_logins_by_ip, suspicious_ips, top_ips
 
 SAMPLES = Path(__file__).parent.parent / "samples"
 ACCESS, _ = read_log(SAMPLES / "access.log", parse_nginx_line)
@@ -38,3 +39,19 @@ def test_failed_logins_by_ip_ignores_accepted():
         "198.51.100.150": 4,
         "10.0.0.20": 1,
     }
+
+
+def test_suspicious_ip_exactly_at_threshold():
+    assert suspicious_ips(Counter({"203.0.113.45": 5}), 5) == [("203.0.113.45", 5)]
+
+
+def test_suspicious_ip_below_threshold():
+    assert suspicious_ips(Counter({"203.0.113.45": 4}), 5) == []
+
+
+def test_suspicious_ip_above_threshold():
+    assert suspicious_ips(Counter({"203.0.113.45": 6}), 5) == [("203.0.113.45", 6)]
+
+
+def test_suspicious_ips_on_samples():
+    assert suspicious_ips(failed_logins_by_ip(AUTH), 5) == [("203.0.113.45", 7)]

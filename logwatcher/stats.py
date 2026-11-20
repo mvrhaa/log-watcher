@@ -15,3 +15,7 @@ def count_status(records, code):
 
 def failed_logins_by_ip(records):
     return Counter(record["ip"] for record in records if record["event"] == "failed")
+
+
+def suspicious_ips(failed_counts, threshold):
+    return [(ip, count) for ip, count in failed_counts.most_common() if count >= threshold]
